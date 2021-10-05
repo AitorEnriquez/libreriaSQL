@@ -30,7 +30,7 @@
                         <label for=txtNombre>Nombre:</label>
                         <input name=libroNuevoNombre type=text maxlength=50 required id=txtNombre value='$libro[Nombre]' placeholder='$libro[Nombre]'>
                         <label for=txtPuntuacion>Puntuación:</label>
-                        <input name=libroNuevoPuntuacion type=number maxlength=2 id=txtNumber value=$libro[Puntuacion] placeholder=$libro[Puntuacion]>
+                        <input name=libroNuevoPuntuacion type=number min=0 max=10 maxlength=2 id=txtNumber value=$libro[Puntuacion] placeholder=$libro[Puntuacion]>
                         <br>
                 ";
                 }
@@ -39,24 +39,28 @@
                 echo "<h1>ERROR: " . $e->getMessage() . "</h1>";
             }
         ?>
+            <input type="submit" value="Guardar"> <input type="reset" value="Resetear">
+        </form>
+    </fieldset>
    <?php
     //Modificar
         if ($_SERVER["REQUEST_METHOD"]=="POST") {
             try {
-                $conexion = new PDO('mysql:host=localhost;dbname=libreria',$user,$pwd);
-                $conexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-                $smt = $conexion->prepare("UPDATE libro SET Nombre='$_POST[libroNuevoNombre]', Puntuacion=$_POST[libroNuevoPuntuacion] WHERE ISBN like '$libroISBN'");;
+                // $conexion = new PDO('mysql:host=localhost;dbname=libreria',$user,$pwd);
+                // $conexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+                $stmt = $conexion->prepare("UPDATE libro SET Nombre=:nombre, Puntuacion=:puntuacion WHERE ISBN like :isbn");
+                $stmt->bindParam(':nombre',$_POST['libroNuevoNombre']);
+                $stmt->bindParam(':puntuacion',$_POST['libroNuevoPuntuacion']);
+                $stmt->bindParam(':isbn',$libroISBN);
                 $stmt->execute();
-                echo "UPDATE libro SET Nombre='$_POST[libroNuevoNombre]', Puntuacion=$_POST[libroNuevoPuntuacion] WHERE ISBN like '$libroISBN'";
-                // header("Location:./");
+                // echo "UPDATE libro SET Nombre='$_POST[libroNuevoNombre]', Puntuacion=$_POST[libroNuevoPuntuacion] WHERE ISBN like '$libroISBN'";
+                header("Location:./");
             } catch (PDOException  $e) {
                 echo "<p>ERROR: " . $e->getMessage() . "</p>";
             }
         }
     ?>
-            <input type="submit" value="Guardar"> <input type="reset" value="Resetear">
-        </form>
-    </fieldset>
     <a href="./" class="btnAcciones">Volver</a>
 </body>
 </html>

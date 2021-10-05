@@ -22,13 +22,14 @@
            ?>
     <fieldset>
         <legend>Librería</legend>
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <label for="txtISBN">ISBN:</label>
-            <input name="libroISBN"type="text" maxlength="12" required id="txtISBN" placeholder="123456789AAA">
+            <input name="libroISBN"type="text" maxlength="12" required id="txtISBN" placeholder="123456789AAA" pattern="[0-9]{9}[A-Z]{3}">
             <label for="txtNombre">Nombre:</label>
             <input name="libroNombre" type="text" maxlength="50" required id="txtNombre" placeholder="El silencio de los corderos">
             <label for="txtPuntuacion">Puntuación:</label>
-            <input name="libroPuntuacion" type="number" maxlength="2" value="0" id="txtNumber" placeholder="0">
+            <input name="libroPuntuacion" type="number" min="0" max="10" maxlength="2" value="0" id="txtNumber" placeholder="0">
+            <input type="file" name="libroImg">
             <br>
             <input type="submit" value="Agregar"> <input type="reset" value="Resetear">
         </form>
@@ -73,15 +74,40 @@
        </table>
     </fieldset>
 
+
+    <?php
+    //Portada
+    if ($_SERVER["REQUEST_METHOD"]=="POST") {
+        //SEGUIR CON IMAGENES
+        // if (isset($_FILES[]))
+        $imagen = $_POST['libroImg'];
+        $nombre_img = $_FILES[$imagen]['name'];
+        $tipo = $_FILES[$imagen]['type'];
+        $peso = $_FILES[$imagen]['size'];
+
+        if ($nombre_img !=null && $peso <=2000) {
+            echo "Se puede subir";
+        }
+        else{
+            echo "No se puede subir";
+        }
+    }
+    ?>
+
+
     <?php
     //Agregar libro
         if ($_SERVER["REQUEST_METHOD"]=="POST") {
             try {
                 // $conexion = new PDO('mysql:host=localhost;dbname=libreria',$user,$pwd);
                 // $conexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-                $stmt = $conexion->prepare("INSERT INTO libro VALUES('$_POST[libroISBN]','$_POST[libroNombre]','$_POST[libroPuntuacion]')");
+                // $stmt = $conexion->prepare("INSERT INTO libro VALUES('$_POST[libroISBN]','$_POST[libroNombre]','$_POST[libroPuntuacion]')");
+                $stmt = $conexion->prepare("INSERT INTO libro VALUES(:isbn,:nombre,:puntuacion)");
+                $stmt->bindParam(':isbn',$_POST['libroISBN']);
+                $stmt->bindParam(':nombre',$_POST['libroNombre']);
+                $stmt->bindParam(':puntuacion',$_POST['libroPuntuacion']);
                 $stmt->execute();
-                header("Location:./");
+                // header("Location:./");
             } catch (PDOException  $e) {
                 echo "<p>ERROR: " . $e->getMessage() . "</p>";
             }
