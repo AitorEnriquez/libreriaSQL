@@ -7,6 +7,7 @@ $pwd = "";
         $conexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         $stmt = $conexion -> prepare("DELETE FROM libro WHERE ISBN like '$libroISBN'");
         $stmt->execute();
+        unlink("./portada/$libroISBN.jpg");
         header("Location:./");
     }
     catch(PDOException $e) {
